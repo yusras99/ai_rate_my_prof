@@ -1,3 +1,10 @@
 node_modules
+
+.env
+# Ignore Next.js build and cache directories
+.next/
+.next/cache/
+.next/server/
+
 rmp-ai-assistant-python/venv/
 rmp-ai-assistant-python/venv/env

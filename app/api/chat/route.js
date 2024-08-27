@@ -1,6 +1,8 @@
+require("dotenv").config();
 import { NextResponse } from "next/server";
 import { Pinecone } from "@pinecone-database/pinecone";
 import OpenAI from "openai";
+import { HfInference } from "@huggingface/inference";
 
 const systemPrompt = `
 You are a rate my professor agent to help students find classes, that takes in user questions and answers them.
@@ -20,21 +22,23 @@ export async function POST(req) {
     apiKey: process.env.OPENROUTER_API_KEY, // Use process.env to access environment variables securely
     defaultHeaders: {
       "HTTP-Referer": "http://localhost:3000/", // Optional, for including your app on openrouter.ai rankings.
-      "X-Title": "Empathetic_Chat_Assistant", // Optional. Shows in rankings on openrouter.ai.
+      "X-Title": "Rate My professors, AI", // Optional. Shows in rankings on openrouter.ai.
     },
   });
+
+  const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
   // Extract the user’s question and create an embedding
   const text = data[data.length - 1].content;
-  const embedding = await openai.embeddings.create({
-    model: "text-embedding-3-small",
-    input: text,
-    encoding_format: "float",
+  const embedding = await hf.featureExtraction({
+    model: "sentence-transformers/all-MiniLM-L6-v2",
+    inputs: text,
   });
   // Use the embedding to find similar professor reviews in Pinecone
   const results = await index.query({
     topK: 5,
     includeMetadata: true,
-    vector: embedding.data[0].embedding,
+    // vector: embedding.data[0].embedding,
+    vector: embedding,
   });
   // Process the Pinecone results into a readable string
   let resultString = "";
