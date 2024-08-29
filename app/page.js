@@ -1,6 +1,7 @@
 "use client";
 import { Box, Button, Stack, TextField } from "@mui/material";
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 export default function Home() {
   // state for managing messages and user input
@@ -92,7 +93,7 @@ export default function Home() {
                 borderRadius={16}
                 p={3}
               >
-                {message.content}
+                <ReactMarkdown>{message.content}</ReactMarkdown>
               </Box>
             </Box>
           ))}
