@@ -1,5 +1,5 @@
 "use client";
-import { Box, Button, Stack, TextField } from "@mui/material";
+import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 
@@ -60,6 +60,18 @@ export default function Home() {
       justifyContent="center"
       alignItems="center"
     >
+      <Typography
+        variant={"h4"}
+        // color={"#000"}
+        sx={{
+          flexGrow: 1,
+          fontFamily: `'Mont Hairline', italic`,
+          fontWeight: "800",
+          paddingTop: 10,
+        }}
+      >
+        Rate My Professor Chatbot
+      </Typography>
       <Stack
         direction={"column"}
         width="500px"
@@ -67,6 +79,7 @@ export default function Home() {
         border="1px solid black"
         p={2}
         spacing={3}
+        sx={{ border: "1px solid white" }}
       >
         <Stack
           direction={"column"}
@@ -100,10 +113,19 @@ export default function Home() {
         </Stack>
         <Stack direction={"row"} spacing={2}>
           <TextField
-            label="Message"
+            label="Enter your text here..."
+            variant="outlined"
             fullWidth
+            rows={4}
+            sx={{ my: 2, width: "1000px" }}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            InputProps={{
+              style: { color: "#FFFFFF", backgroundColor: "#333" }, // Darker input field
+            }}
+            InputLabelProps={{
+              style: { color: "#BBBBBB" }, // Light label color
+            }}
           />
           <Button variant="contained" onClick={sendMessage}>
             Send
