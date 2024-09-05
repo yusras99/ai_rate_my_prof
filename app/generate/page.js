@@ -1,5 +1,17 @@
 "use client";
 
+import React from "react";
+
+// const Generate = () => {
+//   return (
+//     <div>
+//       <h1>Generate Page</h1>
+//       <p>This is the Generate page content.</p>
+//     </div>
+//   );
+// };
+
+// export default Generate;
 import {
   AppBar,
   Box,
@@ -17,11 +29,54 @@ import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import Image from "next/image";
 import { useAuth } from "@clerk/nextjs";
 
-export default function Home() {
-  const { isSignedIn } = useAuth();
-  const href = isSignedIn ? "/generate" : "/sign-in";
-  // const href = isSignedIn ? "/sign-up" : "/sign-in";
+const Generate = () => {
+  // state for managing messages and user input
+  const [messages, setMessages] = useState([
+    {
+      role: "assistant",
+      content: `Hi! I'm the Rate My Professor support assistant. How can I help you today?`,
+    },
+  ]);
+  const [message, setMessage] = useState("");
 
+  const sendMessage = async () => {
+    setMessage("");
+    setMessages((messages) => [
+      ...messages,
+      { role: "user", content: message },
+      { role: "assistant", content: "" },
+    ]);
+
+    const response = fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify([...messages, { role: "user", content: message }]),
+    }).then(async (res) => {
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let result = "";
+
+      return reader.read().then(function processText({ done, value }) {
+        if (done) {
+          return result;
+        }
+        const text = decoder.decode(value || new Uint8Array(), {
+          stream: true,
+        });
+        setMessages((messages) => {
+          let lastMessage = messages[messages.length - 1];
+          let otherMessages = messages.slice(0, messages.length - 1);
+          return [
+            ...otherMessages,
+            { ...lastMessage, content: lastMessage.content + text },
+          ];
+        });
+        return reader.read().then(processText);
+      });
+    });
+  };
   return (
     <Box
       sx={{
@@ -104,67 +159,7 @@ export default function Home() {
           </SignedIn>
         </Toolbar>
       </AppBar>
-      {/* Hero Section */}
-      <Container
-        sx={{
-          textAlign: "center",
-          my: 4,
-          display: "flex",
-          flexDirection: "column",
-          gap: 3,
-          alignItems: "center",
-          backgroundColor: "#fff",
-          padding: "12px",
-        }}
-      >
-        <Typography
-          variant="h3"
-          component="h1"
-          gutterBottom
-          sx={{
-            fontFamily: `'Mont Hairline', italic`,
-            fontWeight: "600",
-            fontStyle: "normal",
-            textShadow: "6px 6px 6px #0000",
-            color: "black",
-          }}
-        >
-          Join us to filter, compare, and choose the right professor for your
-          educational needs.
-        </Typography>
-
-        <Typography
-          variant="h3"
-          component="h1"
-          gutterBottom
-          sx={{
-            fontFamily: `'Mont Hairline', italic`,
-            fontWeight: "500",
-            fontStyle: "normal",
-            textShadow: "6px 6px 6px #0000",
-            color: "black",
-          }}
-        >
-          Empowering You to Choose the Right Professor for Success
-        </Typography>
-
-        <Button
-          variant="contained"
-          sx={{
-            border: "3px solid #4255ff",
-            backgroundColor: "#4255ff",
-            color: "#FFFFFF",
-            "&:hover": {
-              backgroundColor: "#4255ff",
-            },
-          }}
-          href={href}
-        >
-          Get Started
-        </Button>
-      </Container>
-
-      {/* <Stack
+      <Stack
         direction={"column"}
         width="500px"
         height="700px"
@@ -213,7 +208,10 @@ export default function Home() {
             Send
           </Button>
         </Stack>
-      </Stack> */}
+      </Stack>
+      ;
     </Box>
   );
-}
+};
+
+export default Generate;
