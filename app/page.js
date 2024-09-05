@@ -10,7 +10,9 @@ import {
   Typography,
   IconButton,
   Container,
+  Grid,
 } from "@mui/material";
+import CreateIcon from "@mui/icons-material/Create";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
@@ -20,17 +22,14 @@ import { useAuth } from "@clerk/nextjs";
 export default function Home() {
   const { isSignedIn } = useAuth();
   const href = isSignedIn ? "/generate" : "/sign-in";
-  // const href = isSignedIn ? "/sign-up" : "/sign-in";
 
   return (
     <Box
       sx={{
-        my: 0,
         display: "flex",
         flexDirection: "column",
         backgroundColor: "#d9dde8",
-        height: "100vh",
-        gap: 5,
+        height: "100%",
       }}
       alignItems="center"
     >
@@ -104,6 +103,7 @@ export default function Home() {
           </SignedIn>
         </Toolbar>
       </AppBar>
+
       {/* Hero Section */}
       <Container
         sx={{
@@ -164,56 +164,95 @@ export default function Home() {
         </Button>
       </Container>
 
-      {/* <Stack
-        direction={"column"}
-        width="500px"
-        height="700px"
-        border="1px solid black"
-        p={2}
-        spacing={3}
+      {/* Feature Section */}
+      {/* This section highlights the key features of the application, using a grid layout to display them. */}
+      <Container
+        sx={{
+          my: 10,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
+        }}
       >
-        <Stack
-          direction={"column"}
-          spacing={2}
-          flexGrow={1}
-          overflow="auto"
-          maxHeight="100%"
+        <Box sx={{ marginBottom: "50px" }}>
+          <Typography
+            variant="h3"
+            component="h2"
+            gutterBottom
+            alignItems="center"
+            sx={{
+              fontFamily: `'Mont Hairline', italic`,
+              fontWeight: 400,
+              textShadow: "6px 6px 6px #d9dde8",
+              color: "black",
+            }}
+          >
+            Features we offer:
+          </Typography>
+        </Box>
+        <Grid
+          container
+          spacing={4}
+          justifyContent="center"
+          alignItems="center" // Center items vertically within the grid
+          style={{
+            backgroundColor: "#fff",
+            padding: "20px",
+            borderRadius: "8px",
+          }}
         >
-          {messages.map((message, index) => (
-            <Box
-              key={index}
-              display="flex"
-              justifyContent={
-                message.role === "assistant" ? "flex-start" : "flex-end"
-              }
+          <Grid item xs={12} sm={6} md={4}>
+            <CreateIcon sx={{ color: "#000", fontSize: 50 }} />
+            <Typography
+              variant="h6"
+              component="h2"
+              gutterBottom
+              sx={{ fontWeight: 400, color: "#000" }} // black color for the text
             >
-              <Box
-                bgcolor={
-                  message.role === "assistant"
-                    ? "primary.main"
-                    : "secondary.main"
-                }
-                color="white"
-                borderRadius={16}
-                p={3}
-              >
-                <ReactMarkdown>{message.content}</ReactMarkdown>
-              </Box>
-            </Box>
-          ))}
-        </Stack>
-        <Stack direction={"row"} spacing={2}>
-          <TextField
-            label="Message"
-            fullWidth
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-          />
-          <Button variant="contained" onClick={sendMessage}>
-            Send
-          </Button>
-        </Stack>
-      </Stack> */}
+              Smart Professor Review Search
+            </Typography>
+            <Typography color="black">
+              Type in your query or professor’s name, and the app searches its
+              database to fetch the most pertinent reviews and ratings.
+            </Typography>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={4}>
+            <CreateIcon sx={{ color: "#000", fontSize: 50 }} />
+            <Typography
+              variant="h6"
+              component="h2"
+              gutterBottom
+              sx={{ fontWeight: 400, color: "#000" }} // black color for the text
+            >
+              Interactive Chatbot Assistance
+            </Typography>
+            <Typography color="black">
+              The chatbot has the ability to understand and respond to your
+              inquiries. It can handle various types of questions and follow-up
+              for more specific information if needed.
+            </Typography>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={4}>
+            <CreateIcon sx={{ color: "#000", fontSize: 50 }} />
+            <Typography
+              variant="h6"
+              component="h2"
+              gutterBottom
+              sx={{ fontWeight: 400, color: "#000" }} // black color for the text
+            >
+              Customizable Review Filters
+            </Typography>
+            <Typography color="black">
+              Users can select various filters (e.g., star rating, course name)
+              and apply them to their search. The app then updates the review
+              results to match the selected criteria.
+            </Typography>
+          </Grid>
+        </Grid>
+      </Container>
     </Box>
   );
 }
