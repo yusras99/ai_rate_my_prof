@@ -1,137 +1,258 @@
 "use client";
-import { Box, Button, Stack, TextField, Typography } from "@mui/material";
+
+import {
+  AppBar,
+  Box,
+  Button,
+  Stack,
+  TextField,
+  Toolbar,
+  Typography,
+  IconButton,
+  Container,
+  Grid,
+} from "@mui/material";
+import CreateIcon from "@mui/icons-material/Create";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
+import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import Image from "next/image";
+import { useAuth } from "@clerk/nextjs";
 
 export default function Home() {
-  // state for managing messages and user input
-  const [messages, setMessages] = useState([
-    {
-      role: "assistant",
-      content: `Hi! I'm the Rate My Professor support assistant. How can I help you today?`,
-    },
-  ]);
-  const [message, setMessage] = useState("");
+  const { isSignedIn } = useAuth();
+  const href = isSignedIn ? "/generate" : "/sign-in";
 
-  const sendMessage = async () => {
-    setMessage("");
-    setMessages((messages) => [
-      ...messages,
-      { role: "user", content: message },
-      { role: "assistant", content: "" },
-    ]);
-
-    const response = fetch("/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify([...messages, { role: "user", content: message }]),
-    }).then(async (res) => {
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let result = "";
-
-      return reader.read().then(function processText({ done, value }) {
-        if (done) {
-          return result;
-        }
-        const text = decoder.decode(value || new Uint8Array(), {
-          stream: true,
-        });
-        setMessages((messages) => {
-          let lastMessage = messages[messages.length - 1];
-          let otherMessages = messages.slice(0, messages.length - 1);
-          return [
-            ...otherMessages,
-            { ...lastMessage, content: lastMessage.content + text },
-          ];
-        });
-        return reader.read().then(processText);
-      });
-    });
-  };
   return (
     <Box
-      width="100vw"
-      height="100vh"
-      display="flex"
-      flexDirection="column"
-      justifyContent="center"
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        backgroundColor: "#d9dde8",
+        height: "100%",
+      }}
       alignItems="center"
     >
-      <Typography
-        variant={"h4"}
-        // color={"#000"}
+      <AppBar
+        position="static"
         sx={{
-          flexGrow: 1,
-          fontFamily: `'Mont Hairline', italic`,
-          fontWeight: "800",
-          paddingTop: 10,
+          backgroundColor: "#d9dde8",
         }}
       >
-        Rate My Professor Chatbot
-      </Typography>
-      <Stack
-        direction={"column"}
-        width="500px"
-        height="700px"
-        border="1px solid black"
-        p={2}
-        spacing={3}
-        sx={{ border: "1px solid white" }}
-      >
-        <Stack
-          direction={"column"}
-          spacing={2}
-          flexGrow={1}
-          overflow="auto"
-          maxHeight="100%"
-        >
-          {messages.map((message, index) => (
-            <Box
-              key={index}
-              display="flex"
-              justifyContent={
-                message.role === "assistant" ? "flex-start" : "flex-end"
-              }
+        <Toolbar>
+          <a href="./">
+            <IconButton
+              sx={{
+                transition: "box-shadow 0.3s ease",
+                "&:hover": {
+                  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
+                },
+                padding: 0, // Remove padding to fit image
+              }}
             >
-              <Box
-                bgcolor={
-                  message.role === "assistant"
-                    ? "primary.main"
-                    : "secondary.main"
-                }
-                color="white"
-                borderRadius={16}
-                p={3}
+              <Image
+                src="/review_icon.png" // Path to your image in the public folder
+                alt="Review Icon"
+                width={50}
+                height={50}
+              />
+            </IconButton>
+          </a>
+          <Typography
+            variant={"h4"}
+            color={"#000"}
+            sx={{ flexGrow: 1, fontWeight: 800 }}
+          >
+            Professor Review Intel
+          </Typography>
+          <SignedOut>
+            <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+              <Button
+                variant="contained"
+                sx={{
+                  border: "4px solid #4255ff",
+                  backgroundColor: "#4255ff", // Custom background color
+                  color: "#FFFFFF", // Custom text color
+                  "&:hover": {
+                    backgroundColor: "#4255ff", // Custom hover background color
+                  },
+                }}
+                href="/sign-in"
               >
-                <ReactMarkdown>{message.content}</ReactMarkdown>
-              </Box>
+                Login
+              </Button>
+              <Button
+                color="inherit"
+                variant="contained"
+                sx={{
+                  border: "4px solid #4255ff",
+                  backgroundColor: "#4255ff", // Custom background color
+                  color: "#FFFFFF", // Custom text color
+                  "&:hover": {
+                    backgroundColor: "#4255ff", // Custom hover background color
+                  },
+                }}
+                href="/sign-up"
+              >
+                Sign Up
+              </Button>
             </Box>
-          ))}
-        </Stack>
-        <Stack direction={"row"} spacing={2}>
-          <TextField
-            label="Enter your text here..."
-            variant="outlined"
-            fullWidth
-            rows={4}
-            sx={{ my: 2, width: "1000px" }}
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            InputProps={{
-              style: { color: "#FFFFFF", backgroundColor: "#333" }, // Darker input field
+          </SignedOut>
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
+        </Toolbar>
+      </AppBar>
+
+      {/* Hero Section */}
+      <Container
+        sx={{
+          textAlign: "center",
+          my: 4,
+          display: "flex",
+          flexDirection: "column",
+          gap: 3,
+          alignItems: "center",
+          backgroundColor: "#fff",
+          padding: "12px",
+        }}
+      >
+        <Typography
+          variant="h3"
+          component="h1"
+          gutterBottom
+          sx={{
+            fontFamily: `'Mont Hairline', italic`,
+            fontWeight: "600",
+            fontStyle: "normal",
+            textShadow: "6px 6px 6px #0000",
+            color: "black",
+          }}
+        >
+          Join us to filter, compare, and choose the right professor for your
+          educational needs.
+        </Typography>
+
+        <Typography
+          variant="h3"
+          component="h1"
+          gutterBottom
+          sx={{
+            fontFamily: `'Mont Hairline', italic`,
+            fontWeight: "500",
+            fontStyle: "normal",
+            textShadow: "6px 6px 6px #0000",
+            color: "black",
+          }}
+        >
+          Empowering You to Choose the Right Professor for Success
+        </Typography>
+
+        <Button
+          variant="contained"
+          sx={{
+            border: "3px solid #4255ff",
+            backgroundColor: "#4255ff",
+            color: "#FFFFFF",
+            "&:hover": {
+              backgroundColor: "#4255ff",
+            },
+          }}
+          href={href}
+        >
+          Get Started
+        </Button>
+      </Container>
+
+      {/* Feature Section */}
+      {/* This section highlights the key features of the application, using a grid layout to display them. */}
+      <Container
+        sx={{
+          my: 10,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
+        }}
+      >
+        <Box sx={{ marginBottom: "50px" }}>
+          <Typography
+            variant="h3"
+            component="h2"
+            gutterBottom
+            alignItems="center"
+            sx={{
+              fontFamily: `'Mont Hairline', italic`,
+              fontWeight: 400,
+              textShadow: "6px 6px 6px #d9dde8",
+              color: "black",
             }}
-            InputLabelProps={{
-              style: { color: "#BBBBBB" }, // Light label color
-            }}
-          />
-          <Button variant="contained" onClick={sendMessage}>
-            Send
-          </Button>
-        </Stack>
-      </Stack>
+          >
+            Features we offer:
+          </Typography>
+        </Box>
+        <Grid
+          container
+          spacing={4}
+          justifyContent="center"
+          alignItems="center" // Center items vertically within the grid
+          style={{
+            backgroundColor: "#fff",
+            padding: "20px",
+            borderRadius: "8px",
+          }}
+        >
+          <Grid item xs={12} sm={6} md={4}>
+            <CreateIcon sx={{ color: "#000", fontSize: 50 }} />
+            <Typography
+              variant="h6"
+              component="h2"
+              gutterBottom
+              sx={{ fontWeight: 400, color: "#000" }} // black color for the text
+            >
+              Smart Professor Review Search
+            </Typography>
+            <Typography color="black">
+              Type in your query or professor’s name, and the app searches its
+              database to fetch the most pertinent reviews and ratings.
+            </Typography>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={4}>
+            <CreateIcon sx={{ color: "#000", fontSize: 50 }} />
+            <Typography
+              variant="h6"
+              component="h2"
+              gutterBottom
+              sx={{ fontWeight: 400, color: "#000" }} // black color for the text
+            >
+              Interactive Chatbot Assistance
+            </Typography>
+            <Typography color="black">
+              The chatbot has the ability to understand and respond to your
+              inquiries. It can handle various types of questions and follow-up
+              for more specific information if needed.
+            </Typography>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={4}>
+            <CreateIcon sx={{ color: "#000", fontSize: 50 }} />
+            <Typography
+              variant="h6"
+              component="h2"
+              gutterBottom
+              sx={{ fontWeight: 400, color: "#000" }} // black color for the text
+            >
+              Customizable Review Filters
+            </Typography>
+            <Typography color="black">
+              Users can select various filters (e.g., star rating, course name)
+              and apply them to their search. The app then updates the review
+              results to match the selected criteria.
+            </Typography>
+          </Grid>
+        </Grid>
+      </Container>
     </Box>
   );
 }
