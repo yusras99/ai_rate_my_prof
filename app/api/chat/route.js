@@ -16,7 +16,7 @@ export async function POST(req) {
     const pc = new Pinecone({
       apiKey: process.env.PINECONE_API_KEY,
     });
-    const index = pc.index("rag").namespace("ns1");
+    const index = pc.index("rag").namespace("rmp-krishna");
 
     const openai = new OpenAI({
       baseURL: "https://openrouter.ai/api/v1",
@@ -29,39 +29,37 @@ export async function POST(req) {
 
     const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
     // Extract the user’s question (the last msg) and create an embedding
-    const text = data[data.length - 1].content;
-    const embedding = await hf.featureExtraction({
+    const user_query = data[data.length - 1].content;
+    const user_query_embedding = await hf.featureExtraction({
       model: "sentence-transformers/all-MiniLM-L6-v2",
-      inputs: text,
+      inputs: user_query,
     });
 
     // Use the embedding to find similar professor reviews in Pinecone
-    const results = await index.query({
-      topK: 5, // how many results we need
+    const topMatches = await index.query({
+      topK: 10, // how many results we need
       includeMetadata: true,
-      vector: embedding,
+      vector: user_query_embedding,
     });
-    // Process the Pinecone results into a readable string
-    let resultString = "";
-    results.matches.forEach((match) => {
-      resultString += `
-  Returned Results:
-  Professor: ${match.id}
-  Review: ${match.metadata.stars}
-  Subject: ${match.metadata.subject}
-  Stars: ${match.metadata.stars}
-  \n\n`;
-    });
+
+    console.log(topMatches);
+
+    const contexts = topMatches.matches.map((item) => item.metadata.text);
+    const augmentedQuery = `<CONTEXT>\n${contexts
+      .slice(0, 10)
+      .join(
+        "\n\n-------\n\n"
+      )}\n-------\n</CONTEXT>\n\n\n\nMY QUESTION:\n${user_query}`;
+    console.log(augmentedQuery);
+
     // Combine the user’s question with the Pinecone results
-    const lastMessage = data[data.length - 1];
-    const lastMessageContent = lastMessage.content + resultString;
     const lastDataWithoutLastMessage = data.slice(0, data.length - 1);
 
     const completion = await openai.chat.completions.create({
       messages: [
         { role: "system", content: systemPrompt },
         ...lastDataWithoutLastMessage,
-        { role: "user", content: lastMessageContent },
+        { role: "user", content: augmentedQuery },
       ],
       model: "meta-llama/llama-3.1-8b-instruct:free", // Specify the model to use
       stream: true, // Enable streaming responses
