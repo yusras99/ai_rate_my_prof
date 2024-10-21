@@ -22,8 +22,8 @@ export async function POST(req) {
       baseURL: "https://openrouter.ai/api/v1",
       apiKey: process.env.OPENROUTER_API_KEY, // Use process.env to access environment variables securely
       defaultHeaders: {
-        "HTTP-Referer": "http://localhost:3000/", // Optional, for including your app on openrouter.ai rankings.
-        "X-Title": "Rate My professors, AI", // Optional. Shows in rankings on openrouter.ai.
+        "HTTP-Referer": "http://localhost:3000/",
+        "X-Title": "Rate My professors, AI",
       },
     });
 
