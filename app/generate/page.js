@@ -2,16 +2,7 @@
 
 import React from "react";
 
-// const Generate = () => {
-//   return (
-//     <div>
-//       <h1>Generate Page</h1>
-//       <p>This is the Generate page content.</p>
-//     </div>
-//   );
-// };
-
-// export default Generate;
+// This is the page that takes you to actual chatbot;
 import {
   AppBar,
   Box,
@@ -27,7 +18,6 @@ import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import Image from "next/image";
-import { useAuth } from "@clerk/nextjs";
 
 const Generate = () => {
   // state for managing messages and user input

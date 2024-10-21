@@ -13,17 +13,17 @@ import {
   Grid,
 } from "@mui/material";
 import CreateIcon from "@mui/icons-material/Create";
-import { useState } from "react";
-import ReactMarkdown from "react-markdown";
 import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import Image from "next/image";
 import { useAuth } from "@clerk/nextjs";
 
 export default function Home() {
   const { isSignedIn } = useAuth();
+  // Generate button will take you to generate page only if you are signed in
   const href = isSignedIn ? "/generate" : "/sign-in";
 
   return (
+    // Layout of main page
     <Box
       sx={{
         display: "flex",
