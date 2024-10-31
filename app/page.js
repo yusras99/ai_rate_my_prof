@@ -1,5 +1,5 @@
 "use client";
-
+import { useState } from "react";
 import {
   AppBar,
   Box,
@@ -20,7 +20,7 @@ import { useAuth } from "@clerk/nextjs";
 export default function Home() {
   const { isSignedIn } = useAuth();
   // Generate button will take you to generate page only if you are signed in
-  const href = isSignedIn ? "/generate" : "/sign-in";
+  const href = isSignedIn ? "/profUrl" : "/sign-in";
 
   return (
     // Layout of main page
