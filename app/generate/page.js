@@ -18,6 +18,16 @@ import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import Image from "next/image";
+import { firestore } from "@/firebase";
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  setDoc,
+  deleteDoc,
+  getDoc,
+} from "firebase/firestore";
 
 const Generate = () => {
   // state for managing messages and user input

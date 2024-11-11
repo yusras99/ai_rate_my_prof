@@ -3,6 +3,18 @@ import { NextResponse } from "next/server";
 import { Pinecone } from "@pinecone-database/pinecone";
 import OpenAI from "openai";
 import { HfInference } from "@huggingface/inference";
+import { database } from "../../../firebase";
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  setDoc,
+  deleteDoc,
+  getDoc,
+  addDoc,
+  updateDoc,
+} from "firebase/firestore";
 
 const systemPrompt = `
 You are a rate my professor agent to help students find classes, that takes in user questions and answers them.
@@ -27,9 +39,28 @@ export async function POST(req) {
       },
     });
 
+    //userId: The unique ID of the user
+    //message: the chat sent / received
+    //senderType: who sent the message, either "user" or "chatbot"
+    async function storeChatMessage(userID, message, senderType) {
+      try {
+        const userDocRef = await addDoc(collection(database, "chatHistory"), {
+          userID: userID,
+          message: message,
+          senderType: senderType,
+          timestamp: new Date(),
+        });
+        console.log("Message sent to firebase");
+      } catch (error) {
+        console.error("Message not sent to firebase", error);
+      }
+    }
+
     const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
-    // Extract the user’s question (the last msg) and create an embedding
+    // Extract the user’s question (the last msg)
     const user_query = data[data.length - 1].content;
+    await storeChatMessage("user5", user_query, "user");
+    // create an embedding of user's query
     const user_query_embedding = await hf.featureExtraction({
       model: "sentence-transformers/all-MiniLM-L6-v2",
       inputs: user_query,
@@ -42,7 +73,7 @@ export async function POST(req) {
       vector: user_query_embedding,
     });
 
-    console.log(topMatches);
+    // console.log("here", topMatches);
 
     const contexts = topMatches.matches.map((item) => item.metadata.text);
     const augmentedQuery = `<CONTEXT>\n${contexts
@@ -50,11 +81,12 @@ export async function POST(req) {
       .join(
         "\n\n-------\n\n"
       )}\n-------\n</CONTEXT>\n\n\n\nMY QUESTION:\n${user_query}`;
-    console.log(augmentedQuery);
+    // console.log(augmentedQuery);
 
     // Combine the user’s question with the Pinecone results
     const lastDataWithoutLastMessage = data.slice(0, data.length - 1);
 
+    // completion has the chatbot's response, the response is awaited and processed in chunks
     const completion = await openai.chat.completions.create({
       messages: [
         { role: "system", content: systemPrompt },
@@ -70,9 +102,12 @@ export async function POST(req) {
         const encoder = new TextEncoder();
         try {
           for await (const chunk of completion) {
+            // content is the response of chatbots that are received as chunks
             const content = chunk.choices[0]?.delta?.content;
             if (content) {
               const text = encoder.encode(content);
+              console.log(`content:${content}`);
+              //  await storeChatMessage("user5", "Hi Firebase!", "user");
               controller.enqueue(text);
             }
           }
