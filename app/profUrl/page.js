@@ -17,7 +17,7 @@ export default function url() {
   const [text, setText] = useState("");
   const router = useRouter();
 
-  const handleButtonClick = async () => {
+  const handleGetStartedButtonClick = async () => {
     try {
       // Send a post request to the backend to send the url to it
       const response = await fetch("http://127.0.0.1:8000/get-prof-data", {
@@ -36,6 +36,13 @@ export default function url() {
       console.log(data);
       router.push("/generate");
     } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const handleChatHistoryButtonClick = async () => {
+    try { }
+    catch (error) {
       console.error("Error:", error);
     }
   };
@@ -166,9 +173,25 @@ export default function url() {
               backgroundColor: "#4255ff", // Custom hover background color
             },
           }}
-          onClick={handleButtonClick}
+          onClick={handleGetStartedButtonClick}
         >
           Get Started
+        </Button>
+        <Button
+          variant="contained"
+          sx={{
+            mb: 0,
+            border: "4px solid #4255ff",
+            width: "1000px",
+            backgroundColor: "#4255ff", // Custom background color
+            color: "#FFFFFF", // Custom text color
+            "&:hover": {
+              backgroundColor: "#4255ff", // Custom hover background color
+            },
+          }}
+          onClick={handleChatHistoryButtonClick}
+        >
+          See Chat History
         </Button>
       </Box>
     </Box>

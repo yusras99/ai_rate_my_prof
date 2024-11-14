@@ -56,6 +56,23 @@ export async function POST(req) {
       }
     }
 
+    async function getChatHistory(userID) {
+      try {
+        const chatRef = collection(database, "chatHistory");
+        const userQuery = query(chatCollectionRef, where("userID", "==", userID));
+        const chatSnapshot = await getDocs(userQuery);
+        const chatMessages = chatSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        console.log(`Chat history for user ${userID} retrieved from Firebase`, chatMessages);
+        return chatMessages;
+      } catch (error) {
+        console.error(`Failed to retrieve chat history for user ${userID}`, error);
+        return [];
+      }
+    }
+
     const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
     // Extract the user’s question (the last msg)
     const user_query = data[data.length - 1].content;
