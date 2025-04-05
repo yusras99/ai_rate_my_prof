@@ -1,24 +1,13 @@
-# flashcard_saas
+# Rate My Professor Backend
 
-Project 4 of Headstarter Fellowship - Flashcards creation
+A RAG model built with fast API to get data from rate my professor.
 
-### Required Modules
+> [!IMPORTANT]  
+> Make sure all the packages are installed before running the server.
+> pip install -r requirements.txt
 
-```bash
-npm install
-npm install react-markdown
-npm install @mui/material @emotion/react @emotion/styled @pinecone-database/pinecone @vercel/analytics openai
-npm install node
-```
-
-### Build
+## To run the server use
 
 ```bash
-npm run build
-```
-
-### Development Server
-
-```bash
-npm run dev
+fastapi dev ragmodel.py
 ```
